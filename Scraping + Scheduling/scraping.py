@@ -57,7 +57,7 @@ def HTMLToSoup(htmlFile, mode):
 
 def equalizeLists(raw_courses, raw_names):
     for i in range(len(raw_courses)):
-        if i <= len(raw_names):
+        if i == len(raw_names):
             raw_names.append(raw_names[len(raw_names) - 1])
         elif raw_courses[i]['data-classid'] != raw_names[i]['id']:
             raw_names.insert(i, raw_names[i - 1])
@@ -65,11 +65,13 @@ def equalizeLists(raw_courses, raw_names):
 def soupToClass(raw_courses, raw_names):
     for raw_name,raw_course in zip(raw_names, raw_courses):
         section_body = raw_course.find_all('div', class_= 'section-body')
-        courses.append(Course(raw_name.contents[0], section_body[0].contents[0][9:], raw_course['data-classid'], raw_course['data-term'], raw_course['data-campus'], ast.literal_eval(raw_course['data-days']), float(raw_course['data-start']), float(raw_course['data-end']), raw_course['data-instruct_mode'], section_body[4].contents[0][12:], section_body[5].contents[0][8:], 0 if section_body[5].contents[0][8:] != 'Wait List' else section_body[6].contents[0][-2:], raw_course['data-session']))
+        courses.append(Course(raw_name.contents[0], section_body[0].contents[0][9:len(section_body[0].contents[0]) - 7], raw_course['data-classid'], raw_course['data-term'], raw_course['data-campus'], ast.literal_eval(raw_course['data-days']), float(raw_course['data-start']), float(raw_course['data-end']), raw_course['data-instruct_mode'], section_body[4].contents[0][12:], section_body[5].contents[0][8:], 0 if section_body[5].contents[0][8:] != 'Wait List' else section_body[6].contents[0][-2:].strip(), raw_course['data-session']))
+        # print(courses[-1])
         if raw_course['data-classid'] not in id_dict:
-            id_dict[raw_course['data-classid']] = [Course(raw_name.contents[0], section_body[0].contents[0][9:], raw_course['data-classid'], raw_course['data-term'], raw_course['data-campus'], ast.literal_eval(raw_course['data-days']), float(raw_course['data-start']), float(raw_course['data-end']), raw_course['data-instruct_mode'], section_body[4].contents[0][12:], section_body[5].contents[0][8:], 0 if section_body[5].contents[0][8:] != 'Wait List' else section_body[6].contents[0][-2:], raw_course['data-session'])]
+            id_dict[raw_course['data-classid']] = [courses[-1]]
         else:
-            id_dict[raw_course['data-classid']].append(Course(raw_name.contents[0], section_body[0].contents[0][9:], raw_course['data-classid'], raw_course['data-term'], raw_course['data-campus'], ast.literal_eval(raw_course['data-days']), float(raw_course['data-start']), float(raw_course['data-end']), raw_course['data-instruct_mode'], section_body[4].contents[0][12:], section_body[5].contents[0][8:], 0 if section_body[5].contents[0][8:] != 'Wait List' else section_body[6].contents[0][-2:], raw_course['data-session']))
+            id_dict[raw_course['data-classid']].append(courses[-1])
+        print(courses[-1].waitlist_count)
 
 def toJSON(jsonFile, mode):
     jsonstr = json.dumps(courses, default = lambda x: x.__dict__)
@@ -117,10 +119,8 @@ def scheduling(selected_courses):
     if not schedule:
         print("No possible schedule")
         return
-    for course in schedule:
-        print(course)
-    for message in messages:
-        print(message)
+    print(*schedule, sep = '\n')
+    print(*messages, sep = '\n')
 
 def backtracking(schedule, selected_courses, index, messages):
     if index == len(selected_courses):
@@ -157,7 +157,7 @@ def backtracking(schedule, selected_courses, index, messages):
 def main():
     parsing()
     data = savingHTMLtoList('courses.json', 'r')
-    selected_courses = ['ACSUH1010X204929', 'ACSUH2213X234588', 'ARABLUH1120160332', 'ARABLUH2120204522', 'ARTHUH2128232572', 'AWUH1118236369']
+    selected_courses = ['ACSUH2213X234588', 'ARABLUH1120160332', 'ARABLUH2120204522', 'ARTHUH2128232572', 'AWUH1118236369']
     scheduling(selected_courses)
 
 
