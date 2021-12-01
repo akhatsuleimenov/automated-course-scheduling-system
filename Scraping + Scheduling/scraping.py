@@ -8,6 +8,7 @@ import ast
 
 id_dict = {}
 courses = []
+extra = {'LAB', 'RCT', 'WKS'}
 
 class Course:
     def __init__(self, name, title, id, term, campus, days, start_date, end_date, inscturct_mode, instructor, status, waitlist_count, session):
@@ -65,13 +66,15 @@ def equalizeLists(raw_courses, raw_names):
 def soupToClass(raw_courses, raw_names):
     for raw_name,raw_course in zip(raw_names, raw_courses):
         section_body = raw_course.find_all('div', class_= 'section-body')
-        courses.append(Course(raw_name.contents[0], section_body[0].contents[0][9:len(section_body[0].contents[0]) - 7], raw_course['data-classid'], raw_course['data-term'], raw_course['data-campus'], ast.literal_eval(raw_course['data-days']), float(raw_course['data-start']), float(raw_course['data-end']), raw_course['data-instruct_mode'], section_body[4].contents[0][12:], section_body[5].contents[0][8:], 0 if section_body[5].contents[0][8:] != 'Wait List' else section_body[6].contents[0][-2:].strip(), raw_course['data-session']))
-        # print(courses[-1])
+        title = section_body[0].contents[0][9:len(section_body[0].contents[0]) - 7].strip()
+        title = title[5:] if title[0] == '-' else title[4:]
+        if title[0] == '-':
+            title = title[1:]
+        courses.append(Course(raw_name.contents[0], title, raw_course['data-classid'], raw_course['data-term'], raw_course['data-campus'], ast.literal_eval(raw_course['data-days']), float(raw_course['data-start']), float(raw_course['data-end']), raw_course['data-instruct_mode'], section_body[4].contents[0][12:], section_body[5].contents[0][8:], 0 if section_body[5].contents[0][8:] != 'Wait List' else section_body[6].contents[0][-2:].strip(), raw_course['data-session']))
         if raw_course['data-classid'] not in id_dict:
             id_dict[raw_course['data-classid']] = [courses[-1]]
         else:
             id_dict[raw_course['data-classid']].append(courses[-1])
-        print(courses[-1].waitlist_count)
 
 def toJSON(jsonFile, mode):
     jsonstr = json.dumps(courses, default = lambda x: x.__dict__)
@@ -114,6 +117,15 @@ def savingHTMLtoList(jsonFile, mode):
 #         print("{course.name} is waitlisted. You are going to be {course.waitlist_count} in the queue. Be aware of that.")
 #     return True
 
+def modifySelectedCourses(selected_courses):
+    for i in range(len(selected_courses)):
+        selected_courses[i] = (selected_courses[i], 'LEC')
+    for i in range(len(selected_courses)):
+        for course in id_dict[selected_courses[i][0]]:
+            if course.title in extra:
+                selected_courses.append((course.id, course.title))
+                break
+
 def scheduling(selected_courses):
     schedule, messages = backtracking(set(), selected_courses, 0, [])
     if not schedule:
@@ -126,30 +138,60 @@ def backtracking(schedule, selected_courses, index, messages):
     if index == len(selected_courses):
         return (schedule, messages)
 
-    # check if time with days are possible in the schedule
-    for course in id_dict[selected_courses[index]]:
-        if course.status == 'Closed': # Front end should cover this part, delete later. Maybe?
-            continue
-        possible = True
-        start, end = course.start_date, course.end_date
-        days = set(course.days)
-        for selected_course in schedule:
-            days_intersection = days.intersection(selected_course.days)
-            for day in days_intersection:
-                added_start, added_end = selected_course.start_date, selected_course.end_date
-                if not (added_start > end or added_end < start):
-                    possible = False
+    if selected_courses[index][1] == 'LEC':
+        # check if time with days are possible in the schedule
+        for course in id_dict[selected_courses[index][0]]:
+            if course.status == 'Closed': # Front end should cover this part, delete later. Maybe?
+                continue
+            if course.title in extra:
+                continue
+            possible = True
+            start, end = course.start_date, course.end_date
+            days = set(course.days)
+            for selected_course in schedule:
+                days_intersection = days.intersection(selected_course.days)
+                for day in days_intersection:
+                    added_start, added_end = selected_course.start_date, selected_course.end_date
+                    if not (added_start > end or added_end < start):
+                        possible = False
+                        break
+                if not possible:
                     break
-            if not possible:
-                break
-        if possible:
-            schedule.add(course)
-            if course.status == 'Wait List':
-                messages.append("{} is waitlisted. You are going to be number{} in the queue. Be aware of that.".format(course.name, course.waitlist_count))
-            return backtracking(schedule, selected_courses, index + 1, messages)
-            schedule.remove(course)
-            if messages:
-                messages.pop()
+            if possible:
+                schedule.add(course)
+                if course.status == 'Wait List':
+                    messages.append("{} is waitlisted. You are going to be number{} in the queue. Be aware of that.".format(course.name, course.waitlist_count))
+                return backtracking(schedule, selected_courses, index + 1, messages)
+                schedule.remove(course)
+                if messages:
+                    messages.pop()
+    else:
+        # check if time with days are possible in the schedule
+        for course in id_dict[selected_courses[index][0]]:
+            if course.status == 'Closed': # Front end should cover this part, delete later. Maybe?
+                continue
+            if course.title not in extra:
+                continue
+            possible = True
+            start, end = course.start_date, course.end_date
+            days = set(course.days)
+            for selected_course in schedule:
+                days_intersection = days.intersection(selected_course.days)
+                for day in days_intersection:
+                    added_start, added_end = selected_course.start_date, selected_course.end_date
+                    if not (added_start > end or added_end < start):
+                        possible = False
+                        break
+                if not possible:
+                    break
+            if possible:
+                schedule.add(course)
+                if course.status == 'Wait List':
+                    messages.append("{} is waitlisted. You are going to be number{} in the queue. Be aware of that.".format(course.name, course.waitlist_count))
+                return backtracking(schedule, selected_courses, index + 1, messages)
+                schedule.remove(course)
+                if messages:
+                    messages.pop()
     return (False, [])
             
 
@@ -157,7 +199,9 @@ def backtracking(schedule, selected_courses, index, messages):
 def main():
     parsing()
     data = savingHTMLtoList('courses.json', 'r')
-    selected_courses = ['ACSUH2213X234588', 'ARABLUH1120160332', 'ARABLUH2120204522', 'ARTHUH2128232572', 'AWUH1118236369']
+    selected_courses = ['MATHUH1000A234160', 'ARABLUH1120160332', 'ARABLUH2120204522', 'ARTHUH2128232572', 'AWUH1118236369']
+    modifySelectedCourses(selected_courses)
+    print(selected_courses)
     scheduling(selected_courses)
 
 
