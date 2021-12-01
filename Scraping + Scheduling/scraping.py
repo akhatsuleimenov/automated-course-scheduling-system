@@ -31,7 +31,6 @@ class Course:
 
 def parseToHTML(htmlFile, mode):
     url = "https://m.albert.nyu.edu/app/catalog/getClassSearch"
-
     payload='CSRFToken=0cacdd6a262ee0c2540ca0f1d44089d2&acad_group=UH&catalog_nbr=&class_nbr=&keyword=&nyu_location=&subject=&term=1224'
     headers = {
       'sec-ch-ua': '"Google Chrome";v="95", "Chromium";v="95", ";Not A Brand";v="99"',
@@ -76,14 +75,22 @@ def soupToClass(raw_courses, raw_names):
         else:
             id_dict[raw_course['data-classid']].append(courses[-1])
 
-def toJSON(jsonFile, mode):
-    jsonstr = json.dumps(courses, default = lambda x: x.__dict__)
+def toJSON(jsonFile, mode, array):
+    jsonstr = json.dumps(array, default = lambda x: x.__dict__)
     jsonFile = open(jsonFile, mode)
     jsonFile.write(jsonstr)
     jsonFile.close()
 
 def JSONToExcel(inFile, outFile):
     pd.read_json(inFile).to_excel(outFile)
+
+def sortDict():
+    for key in id_dict:
+        start = 0
+        for i, course in enumerate(id_dict[key]):
+            if course.status == 'Open':
+                id_dict[key][i], id_dict[key][start] = id_dict[key][start], id_dict[key][i]
+                start += 1
 
 def parsing():
     raw_courses, raw_names = [], []
@@ -94,7 +101,7 @@ def parsing():
     raw_courses, raw_names = HTMLToSoup(htmlFile, 'r')
     equalizeLists(raw_courses, raw_names)
     soupToClass(raw_courses, raw_names)
-    toJSON(jsonFile, 'w')
+    toJSON(jsonFile, 'w', courses)
     JSONToExcel(jsonFile, excelFile)
 
 def savingHTMLtoList(jsonFile, mode):
@@ -105,17 +112,6 @@ def savingHTMLtoList(jsonFile, mode):
 
 # def savingHTMLtoDict():
 # def selectedCoursesFromHTML():
-
-# def errorSelectedCourse(course, seen):
-#     if course.status == 'C':
-#         print("{course.name} is closed. You can't create a schedule with it.")
-#         return False
-#     if course.id in seen:
-#         print("{course.name} is already picked. You can't pick more than one of the same course.")
-#         return False
-#     if course.status == 'W':
-#         print("{course.name} is waitlisted. You are going to be {course.waitlist_count} in the queue. Be aware of that.")
-#     return True
 
 def modifySelectedCourses(selected_courses):
     for i in range(len(selected_courses)):
@@ -128,16 +124,20 @@ def modifySelectedCourses(selected_courses):
 
 def scheduling(selected_courses):
     schedule, messages = backtracking(set(), selected_courses, 0, [])
+    ''' to be deleted '''
     if not schedule:
         print("No possible schedule")
         return
     print(*schedule, sep = '\n')
     print(*messages, sep = '\n')
+    ''' to be deleted '''
+    return schedule
 
 def backtracking(schedule, selected_courses, index, messages):
     if index == len(selected_courses):
         return (schedule, messages)
 
+    # sort classes by status
     if selected_courses[index][1] == 'LEC':
         # check if time with days are possible in the schedule
         for course in id_dict[selected_courses[index][0]]:
@@ -199,10 +199,12 @@ def backtracking(schedule, selected_courses, index, messages):
 def main():
     parsing()
     data = savingHTMLtoList('courses.json', 'r')
+    sortDict()
     selected_courses = ['MATHUH1000A234160', 'ARABLUH1120160332', 'ARABLUH2120204522', 'ARTHUH2128232572', 'AWUH1118236369']
     modifySelectedCourses(selected_courses)
     print(selected_courses)
-    scheduling(selected_courses)
+    schedule = scheduling(selected_courses)
+    toJSON('schedule.json', 'w', list(schedule))
 
 
 if __name__ == '__main__':
