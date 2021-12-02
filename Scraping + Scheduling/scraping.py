@@ -65,10 +65,11 @@ def equalizeLists(raw_courses, raw_names):
 def soupToClass(raw_courses, raw_names):
     for raw_name,raw_course in zip(raw_names, raw_courses):
         section_body = raw_course.find_all('div', class_= 'section-body')
-        title = section_body[0].contents[0][9:len(section_body[0].contents[0]) - 7].strip()
-        title = title[5:] if title[0] == '-' else title[4:]
-        if title[0] == '-':
-            title = title[1:]
+        title = section_body[0].contents[0][9:].strip()
+        # title = section_body[0].contents[0][9:len(section_body[0].contents[0]) - 7].strip()
+        # title = title[5:] if title[0] == '-' else title[4:]
+        # if title[0] == '-':
+        #     title = title[1:]
         courses.append(Course(raw_name.contents[0], title, raw_course['data-classid'], raw_course['data-term'], raw_course['data-campus'], ast.literal_eval(raw_course['data-days']), float(raw_course['data-start']), float(raw_course['data-end']), raw_course['data-instruct_mode'], section_body[4].contents[0][12:], section_body[5].contents[0][8:], 0 if section_body[5].contents[0][8:] != 'Wait List' else section_body[6].contents[0][-2:].strip(), raw_course['data-session']))
         if raw_course['data-classid'] not in id_dict:
             id_dict[raw_course['data-classid']] = [courses[-1]]
@@ -113,29 +114,40 @@ def savingHTMLtoList(jsonFile, mode):
 # def savingHTMLtoDict():
 # def selectedCoursesFromHTML():
 
+def trimTitle(title):
+    title = title[:len(title) - 7].strip()
+    title = title[5:] if title[0] == '-' else title[4:]
+    if title[0] == '-':
+        title = title[1:]
+    return title
+
 def modifySelectedCourses(selected_courses):
     for i in range(len(selected_courses)):
         selected_courses[i] = (selected_courses[i], 'LEC')
     for i in range(len(selected_courses)):
         for course in id_dict[selected_courses[i][0]]:
-            if course.title in extra:
-                selected_courses.append((course.id, course.title))
+            if trimTitle(course.title) in extra:
+                selected_courses.append((course.id, 'RCT'))
                 break
 
 def scheduling(selected_courses):
-    schedule, messages = backtracking(set(), selected_courses, 0, [])
+    calendar = backtracking([], [], selected_courses, 0, [])
     ''' to be deleted '''
-    if not schedule:
+    if not calendar:
         print("No possible schedule")
         return
-    print(*schedule, sep = '\n')
-    print(*messages, sep = '\n')
+    i = 0
+    for schedule, message in calendar:
+        print("Calendar ", i)
+        print(*schedule, message, sep='\n')
+        i += 1
     ''' to be deleted '''
-    return schedule
+    return calendar
 
-def backtracking(schedule, selected_courses, index, messages):
+def backtracking(calendar, schedule, selected_courses, index, messages):
     if index == len(selected_courses):
-        return (schedule, messages)
+        calendar.append((schedule[:], messages[:]))
+        return calendar
 
     # sort classes by status
     if selected_courses[index][1] == 'LEC':
@@ -143,7 +155,7 @@ def backtracking(schedule, selected_courses, index, messages):
         for course in id_dict[selected_courses[index][0]]:
             if course.status == 'Closed': # Front end should cover this part, delete later. Maybe?
                 continue
-            if course.title in extra:
+            if trimTitle(course.title) == 'RCT':
                 continue
             possible = True
             start, end = course.start_date, course.end_date
@@ -158,11 +170,11 @@ def backtracking(schedule, selected_courses, index, messages):
                 if not possible:
                     break
             if possible:
-                schedule.add(course)
+                schedule.append(course)
                 if course.status == 'Wait List':
-                    messages.append("{} is waitlisted. You are going to be number{} in the queue. Be aware of that.".format(course.name, course.waitlist_count))
-                return backtracking(schedule, selected_courses, index + 1, messages)
-                schedule.remove(course)
+                    messages.append("{} is waitlisted. You are going to be number {} in the queue. Be aware of that.".format(course.name, course.waitlist_count))
+                backtracking(calendar, schedule, selected_courses, index + 1, messages)
+                schedule.pop()
                 if messages:
                     messages.pop()
     else:
@@ -170,7 +182,7 @@ def backtracking(schedule, selected_courses, index, messages):
         for course in id_dict[selected_courses[index][0]]:
             if course.status == 'Closed': # Front end should cover this part, delete later. Maybe?
                 continue
-            if course.title not in extra:
+            if trimTitle(course.title) == 'LEC':
                 continue
             possible = True
             start, end = course.start_date, course.end_date
@@ -185,14 +197,14 @@ def backtracking(schedule, selected_courses, index, messages):
                 if not possible:
                     break
             if possible:
-                schedule.add(course)
+                schedule.append(course)
                 if course.status == 'Wait List':
-                    messages.append("{} is waitlisted. You are going to be number{} in the queue. Be aware of that.".format(course.name, course.waitlist_count))
-                return backtracking(schedule, selected_courses, index + 1, messages)
-                schedule.remove(course)
-                if messages:
+                    messages.append("{} is waitlisted. You are going to be number {} in the queue. Be aware of that.".format(course.name, course.waitlist_count))
+                backtracking(calendar, schedule, selected_courses, index + 1, messages)
+                schedule.pop()
+                if course.status == 'Wait List':
                     messages.pop()
-    return (False, [])
+    return calendar
             
 
     
@@ -202,9 +214,10 @@ def main():
     sortDict()
     selected_courses = ['MATHUH1000A234160', 'ARABLUH1120160332', 'ARABLUH2120204522', 'ARTHUH2128232572', 'AWUH1118236369']
     modifySelectedCourses(selected_courses)
-    print(selected_courses)
-    schedule = scheduling(selected_courses)
-    toJSON('schedule.json', 'w', list(schedule))
+    calendar = scheduling(selected_courses)
+    # cld = [c for c, m in calendar]
+    toJSON('schedule.json', 'w', calendar)
+    JSONToExcel("schedule.json", "calendar.xlsx")
 
 
 if __name__ == '__main__':
