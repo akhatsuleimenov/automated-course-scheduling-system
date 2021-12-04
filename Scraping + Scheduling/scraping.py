@@ -54,6 +54,26 @@ def HTMLToSoup(htmlFile, mode):
     raw_names = soup.find_all('div', class_='secondary-head class-title-header')
     return (raw_courses, raw_names)
 
+def listClassSublists(raw_courses, raw_names):
+    list_of_subclasses = []
+    index = 0
+    for raw_name in raw_names:
+        subclass = []
+        for i in range(index, len(raw_courses)):
+            if raw_name.get('id') != raw_courses[i]['data-classid']:
+                index = i
+                break
+            raw_course = raw_courses[i]
+            w = 0 if raw_course['data-enrl_stat'] == 'W' else 1
+            section_body = raw_course.find_all('div', class_= 'section-body')
+            instructor = section_body[-3 + w].contents[0][12:]
+            status = section_body[-2 + w].contents[0][8:]
+            waitlist_count = 0 if w else section_body[-1].contents[0][-2:].strip()
+            subclass.append(Course(raw_name.contents[0], section_body[0].contents[0][9:].strip(), raw_course['data-classid'], raw_course['data-term'], raw_course['data-campus'], ast.literal_eval(raw_course['data-days']), float(raw_course['data-start']), float(raw_course['data-end']), raw_course['data-instruct_mode'], instructor, status, waitlist_count, raw_course['data-session']))
+        list_of_subclasses.append(subclass[:])
+    return list_of_subclasses
+
+
 def equalizeLists(raw_courses, raw_names):
     for i in range(len(raw_courses)):
         if i == len(raw_names):
@@ -95,6 +115,8 @@ def parsing():
     excelFile = 'courses.xlsx'
     # parseToHTML(htmlFile, 'w')
     raw_courses, raw_names = HTMLToSoup(htmlFile, 'r')
+    list_of_subclasses = listClassSublists(raw_courses, raw_names)
+    toJSON('subclasses.json', 'w', list_of_subclasses)
     equalizeLists(raw_courses, raw_names)
     soupToClass(raw_courses, raw_names)
     toJSON(jsonFile, 'w', courses)
@@ -131,11 +153,11 @@ def scheduling(selected_courses):
     if not calendar:
         print("No possible schedule")
         return
-    i = 0
-    for schedule, message in calendar:
-        print("Calendar ", i)
-        print(*schedule, message, sep='\n')
-        i += 1
+    # i = 0
+    # for schedule, message in calendar:
+    #     print("Calendar ", i)
+    #     print(*schedule, message, sep='\n')
+    #     i += 1
     ''' to be deleted '''
     return calendar
 
