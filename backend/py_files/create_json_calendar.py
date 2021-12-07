@@ -1,7 +1,6 @@
 import json
 import constants
 import course_class
-from collections import defaultdict
 
 def saving_json(json_file, mode):
     f = open(json_file, mode)
