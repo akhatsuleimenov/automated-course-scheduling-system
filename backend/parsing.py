@@ -15,7 +15,7 @@ class Course:
         self.status = status
         self.waitlist_count = waitlist_count
         self.session = session
-
+    
     def __str__(self):
         return "Name:\t\t {}\nTitle:\t\t {}\nID:\t\t {}\nTerm:\t\t {}\nCampus:\t\t {}\nDays:\t\t {}\nStart_date:\t {}\nEnd_date:\t {}\nInstructor_mode: {}\nInstructor:\t {}\nStatus:\t\t {}\nWaitlist Count:  {}\nSession:\t {}\n".format(self.name, self.title, self.id, self.term, self.campus, self.days, self.start_date, self.end_date, self.inscturct_mode, self. instructor, self.status, self.waitlist_count, self.session)
 
@@ -38,9 +38,6 @@ def parseToHTML(htmlFile, mode):
     htmlFile.write(response.text)
     htmlFile.close()
 
-def main():
+if __name__ == '__main__':
     htmlFile = 'data.html'
     parseToHTML(htmlFile, 'w')
-
-if __name__ == '__main__':
-    main()
