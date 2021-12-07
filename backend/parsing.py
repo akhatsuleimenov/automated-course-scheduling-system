@@ -1,25 +1,8 @@
 import requests
+import constants
+import course_class
 
-class Course:
-    def __init__(self, name, title, id, term, campus, days, start_date, end_date, inscturct_mode, instructor, status, waitlist_count, session):
-        self.name = name
-        self.title = title
-        self.id = id
-        self.term = term
-        self.campus = campus
-        self.days = days
-        self.start_date = start_date
-        self.end_date = end_date
-        self.inscturct_mode = inscturct_mode
-        self.instructor = instructor
-        self.status = status
-        self.waitlist_count = waitlist_count
-        self.session = session
-    
-    def __str__(self):
-        return "Name:\t\t {}\nTitle:\t\t {}\nID:\t\t {}\nTerm:\t\t {}\nCampus:\t\t {}\nDays:\t\t {}\nStart_date:\t {}\nEnd_date:\t {}\nInstructor_mode: {}\nInstructor:\t {}\nStatus:\t\t {}\nWaitlist Count:  {}\nSession:\t {}\n".format(self.name, self.title, self.id, self.term, self.campus, self.days, self.start_date, self.end_date, self.inscturct_mode, self. instructor, self.status, self.waitlist_count, self.session)
-
-def parseToHTML(htmlFile, mode):
+def parse_to_html(html_file, mode):
     url = "https://m.albert.nyu.edu/app/catalog/getClassSearch"
     payload='CSRFToken=0cacdd6a262ee0c2540ca0f1d44089d2&acad_group=UH&catalog_nbr=&class_nbr=&keyword=&nyu_location=&subject=&term=1224'
     headers = {
@@ -34,10 +17,9 @@ def parseToHTML(htmlFile, mode):
     }
 
     response = requests.request("POST", url, headers=headers, data=payload)
-    htmlFile = open(htmlFile, mode)
-    htmlFile.write(response.text)
-    htmlFile.close()
+    html_file = open(html_file, mode)
+    html_file.write(response.text)
+    html_file.close()
 
 if __name__ == '__main__':
-    htmlFile = 'data.html'
-    parseToHTML(htmlFile, 'w')
+    parse_to_html(constants.COURSES_HTML, 'w')
