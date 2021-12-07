@@ -6,29 +6,39 @@ FOLDER_EXCEL = excel_files/
 CALENDAR_EXCEL = ${FOLDER_EXCEL}calendar.xlsx
 COURSES_EXCEL = ${FOLDER_EXCEL}courses.xlsx
 
+FOLDER_PY = py_files/
+
+all: parse files_json
+	python3 ${FOLDER_PY}create_json_calendar.py 
+
 parse:
-	python3 parsing.py
+	python3 ${FOLDER_PY}parsing.py
 
-json_files: parse
-	python3 html_to_json.py
+files_json: parse
+	python3 ${FOLDER_PY}html_to_json.py
 
-courses_excel: json_files
-	python3 to_excel.py ${COURSES_JSON} ${COURSES_EXCEL}
+courses_excel: files_json
+	python3 ${FOLDER_PY}to_excel.py ${COURSES_JSON} ${COURSES_EXCEL}
 
-json_calendar: json_files
-	python3 create_json_calendar.py 
+calendar_json: files_json
+	python3 ${FOLDER_PY}create_json_calendar.py 
 
-calendar_excel: json_calendar
-	python3 to_excel.py ${CALENDAR_JSON} ${CALENDAR_EXCEL}
+calendar_excel: calendar_json
+	python3 ${FOLDER_PY}to_excel.py ${CALENDAR_JSON} ${CALENDAR_EXCEL}
 
-only_json_files:
-	python3 html_to_json.py
+only_files_json:
+	python3 ${FOLDER_PY}html_to_json.py
 
 only_courses_excel:
-	python3 to_excel.py ${COURSES_JSON} ${COURSES_EXCEL}
+	python3 ${FOLDER_PY}to_excel.py ${COURSES_JSON} ${COURSES_EXCEL}
 
-only_json_calendar:
-	python3 create_json_calendar.py 
+only_calendar_json:
+	python3 ${FOLDER_PY}create_json_calendar.py 
 
 only_calendar_excel:
-	python3 to_excel.py ${CALENDAR_JSON} ${CALENDAR_EXCEL}
+	python3 ${FOLDER_PY}to_excel.py ${CALENDAR_JSON} ${CALENDAR_EXCEL}
+
+clean:
+	rm -rf __pycache__
+
+.PHONY: run clean
