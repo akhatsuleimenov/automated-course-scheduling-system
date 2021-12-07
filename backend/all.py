@@ -237,7 +237,7 @@ if __name__ == '__main__':
         modifySelectedCourses(fixed_selected_courses, selected_count)
         calendar = scheduling(fixed_selected_courses, selected_count)
         
-        toJSON('schedule.json', 'w', calendar)
-        JSONToExcel("schedule.json", "calendar.xlsx")
+        toJSON('calendar.json', 'w', calendar)
+        JSONToExcel("calendar.json", "calendar.xlsx")
     else:
         print("No possible schedule")
