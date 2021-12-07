@@ -1,6 +1,7 @@
 # parsed courses from Albert
 FOLDER_HTML = 'html_files/'
 COURSES_HTML = FOLDER_HTML + 'data.html'
+BACKUP_HTML = FOLDER_HTML + 'backup.html'
 
 # json files needed to use at the website
 FOLDER_JSON = 'json_files/'
