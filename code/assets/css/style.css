@@ -3538,7 +3538,7 @@ a {
         height: 100%;
         width: 100%;
         padding-top: 50px;
-        padding-top: var(--schedule-rows-height)
+        padding-top: var(--schedule-rows-height);
     }
 
     .js .cd-schedule__timeline li {
@@ -3563,7 +3563,8 @@ a {
     }
 
     .js .cd-schedule__timeline li span {
-        display: none
+        display: none;
+        font-weight: bold;
     }
 }
 
@@ -3693,6 +3694,7 @@ a {
         border-bottom: 1px solid hsl(0, 0%, 92%);
         border-bottom: 1px solid var(--cd-color-border);
         padding: 0;
+        font-weight: bold;
     }
 
     .js .cd-schedule__top-info>span{
