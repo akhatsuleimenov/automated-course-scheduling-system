@@ -32,7 +32,7 @@ only_files_json:
 only_courses_excel:
 	python3 ${FOLDER_PY}to_excel.py ${COURSES_JSON} ${COURSES_EXCEL}
 
-
+only_calendar_json:
 	python3 ${FOLDER_PY}create_json_calendar.py 
 
 only_calendar_excel:
