@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<script src="https://code.iconify.design/1/1.0.7/iconify.min.js"></script>
+	<!--==================== UNICONS ====================-->
+	<link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
+	<link rel="stylesheet" href="https://unpkg.com/swiper/swiper-
+	bundle.min.css"/>
+	<link rel="preconnect" href="https://fonts.gstatic.com">
+	
+	<title>Automated Course Scheduling System </title>
+	<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+	<script type="text/javascript" src="assets/classes.json"> </script>
+	<script type="text/javascript" src="assets/courses.json"> </script>
+	<script type="text/javascript" src="assets/js/jquery.min.js"></script>
+	<script type='text/javascript'> var current_schedule = 0, max_len = 0; </script>
+	<script type="text/javascript" src="assets/js/fill_table.js"></script>
+	<script>document.getElementsByTagName("html")[0].className += " js";</script>
+	<link rel="stylesheet" href="assets/css/style.css">
+	<link rel="stylesheet" href="assets/style1.css">
+	
+
+</head>
+
+<body>
+	<div class="start">Automated Course Scheduling System</div>
+	<!-- search section -->
+	<div class="searchbar">
+		<span class="iconify" data-icon="ant-design:search-outlined"></span>
+		<input  type="text" id="myInput" onkeyup="myFunction()" placeholder="Search for classes..." title="Type in a name">
+	</div>
+	<!-- interface of the adding the courses and deleting it -->
+	<section class="interfacepage">
+		<div id="classes">
+		</div>
+		<div style="width: 25%; display: flex; flex-direction: column; justify-content: space-between;">
+			
+		
+			<div class="picked">
+				Course Picked(0/9) 
+			</div>
+			<a href="#calendar"> <div class="submit">
+				 Submit 
+			</div></a>
+		</div>
+
+	</section>
+
+	<!-- interface of the calendar section -->
+	<section class="calendar" id="calendar">
+		<div class="schedules-container">
+		    <div class="schedules-wrapper">
+		      <div id="schedules-slider">
+
+		      </div>
+		    </div>
+		</div>
+
+		<div class="buttons margin-top-sm margin-bottom-md">
+		    <div class="arrow prev" id="btn-prev"></div>
+		    <div id="schedule-number"></div>
+		    <div class="arrow next" id="btn-next"></div>
+		</div>
+	</section>
+	<script src="assets/script.js"> </script>
+</body>
+
