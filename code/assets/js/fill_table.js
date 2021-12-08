@@ -70,7 +70,7 @@ fetchJSON().then(schedules => {
       var events_weekday_ul = document.createElement("ul");
       events_weekday_ul.id = "ul-"+weekdays_names[weekday];
 
-      var slotHeight = 30;
+      var slotHeight = 25;
       var timelineStart = getStringToTimestamp("9:00");
       var timelineUnitDuration = 30;
       var cur = weekdays[weekday];
