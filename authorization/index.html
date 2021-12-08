@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<title>Login V4</title>
+	<title>ACSS Authorization </title>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<! –– Google OAugh 2.0 Credentials from Google API Console ––>
 	<meta name="google-signin-scope" content="profile email">
 	<meta name="google-signin-client_id" content="585389099098-3565s4sl8cmbqav3ks5t2u6082lefnp3.apps.googleusercontent.com">
 	<script src="https://apis.google.com/js/platform.js" async defer></script>
+	<! –– CSS files ––>
 <!--===============================================================================================-->	
 	<link rel="icon" type="image/png" href="images/icons/favicon.ico"/>
 <!--===============================================================================================-->
@@ -44,7 +46,7 @@
 						This app would help you with creating your pre-registration course schedules =) <br>
 						To start the application, you need to authorize with NYU gmail to confirm that you are NYUAD student. <br> <center> Good luck! </center>
 					</div>
-					
+					<! –– Button for signing in. If user authorizes successfully, it takes to the page with the search and add courses ––>
 					<center><div class="g-signin2" data-onsuccess="onSignIn" data-prompt="select_account"></div></center>
 
 					<script>
@@ -68,6 +70,7 @@
 			var profile = user.getBasicProfile();
 		}
 	</script>
+<! –– run JS scripts listed below ––>
 <!--===============================================================================================-->
 	<script src="vendor/animsition/js/animsition.min.js"></script>
 <!--===============================================================================================-->
@@ -85,6 +88,7 @@
 
 </body>
 <script>
+	<! –– redirect to the main page upon successful authorization ––>
 	function onSignIn(googleUser) {
 		window.location.href = "https://karishev.github.io/acss/"; //CHECK FOR AUTHORIZATION IN PAGE
 	}
