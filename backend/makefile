@@ -1,7 +1,9 @@
+# Locations of the json files needed for the excel files
 FOLDER_JSON = json_files/
 CALENDAR_JSON = ${FOLDER_JSON}calendar.json
 COURSES_JSON = ${FOLDER_JSON}courses.json
 
+# Locations of the excel files needed for the excel files
 FOLDER_EXCEL = excel_files/
 CALENDAR_EXCEL = ${FOLDER_EXCEL}calendar.xlsx
 COURSES_EXCEL = ${FOLDER_EXCEL}courses.xlsx
