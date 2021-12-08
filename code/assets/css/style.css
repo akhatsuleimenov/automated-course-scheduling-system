@@ -3579,7 +3579,8 @@ a {
         -ms-transform: translateY(-50%);
         transform: translateY(-50%);
         font-size: 0.83333em;
-        font-size: var(--text-sm)
+        font-size: var(--text-sm);
+        font-weight: bold;
     }
 
     .js .cd-schedule__timeline li:nth-of-type(2n) span {
@@ -3668,14 +3669,15 @@ a {
 .cd-schedule__top-info{
     width: 100%;
     padding: 0 1.25em;
-    padding: 0 var(--component-padding)
+    padding: 0 var(--component-padding);
+    font-weight: bold
 }
 
 .cd-schedule__top-info>span{
     display: inline-block;
     margin-bottom: 0.75em;
     margin-bottom: var(--space-sm);
-    font-weight: bold
+    font-weight: bold;
 }
 
 @media (min-width: 64rem) {
@@ -3690,14 +3692,15 @@ a {
         height: var(--schedule-rows-height);
         border-bottom: 1px solid hsl(0, 0%, 92%);
         border-bottom: 1px solid var(--cd-color-border);
-        padding: 0
+        padding: 0;
     }
 
     .js .cd-schedule__top-info>span{
         font-weight: normal;
         font-size: 0.83333em;
         font-size: var(--text-sm);
-        margin-bottom: 0
+        margin-bottom: 0;
+        font-weight: bold;
     }
 }
 
