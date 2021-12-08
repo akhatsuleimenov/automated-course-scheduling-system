@@ -75,9 +75,3 @@ if __name__ == '__main__':
     to_json(constants.COURSES_JSON, 'w', COURSES)
     to_json(constants.COURSES_DICT_JSON, 'w', ID_DICT)
     to_json(constants.SUBCLASSES_JSON, 'w', SUBCLASSES)
-
-    ''' delete after Cheena does this'''
-    selected_json = constants.SELECTED_JSON
-    selected_courses = [('MATHUH1000A234160', '001-SEM (18450)'), ('ARABLUH1120160332', 0), ('ARABLUH2120204522', 0), ('ARTHUH2128232572', 0), ('AWUH1118236369', 0)]
-    to_json(selected_json, 'w', selected_courses)
-    ''' delete after Cheena does this'''
