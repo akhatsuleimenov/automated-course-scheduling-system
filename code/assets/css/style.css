@@ -3886,6 +3886,7 @@ a {
     display: inline-block;
     margin: 0 auto;
     font-size: 1em;
+    font-weight: bold;
 }
 
 .hide {
