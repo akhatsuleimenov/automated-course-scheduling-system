@@ -117,7 +117,7 @@ fetchJSON().then(schedules => {
   }
 
   //append main script to html
-  var src = "assets/js/main.js";
+  var src = "codes/assets/js/main.js";
   $('<script>').attr('src', src).appendTo('body');
 
   //convert time in string(hh:mm) into timestamp(total minutes)
