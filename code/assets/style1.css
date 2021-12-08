@@ -264,6 +264,7 @@ body {
 }
 
 #calendar{
+	font-size: 1.25rem;
 	/*background: #4f027e;*/
 	/*display: none;*/
 	margin-top: 80px;
