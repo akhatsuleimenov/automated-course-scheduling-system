@@ -3,6 +3,9 @@ import constants
 import course_class
 
 def parse_to_html(html_file):
+    '''Parse courses from Albert into data.html file.'''
+    
+    # Constants needed for the request
     url = "https://m.albert.nyu.edu/app/catalog/getClassSearch"
     payload='CSRFToken=0cacdd6a262ee0c2540ca0f1d44089d2&acad_group=UH&catalog_nbr=&class_nbr=&keyword=&nyu_location=&subject=&term=1224'
     headers = {
@@ -18,17 +21,24 @@ def parse_to_html(html_file):
 
     try:
         response = requests.request("POST", url, headers=headers, data=payload)
+        
+        # saving into data.html file
         html_file = open(html_file, 'w')
-        backup_file = open(constants.BACKUP_HTML ,'w')
         html_file.write(response.text)
-        backup_file.write(response.text)
         html_file.close()
+        
+        # saving the latest version into the backup file
+        backup_file = open(constants.BACKUP_HTML ,'w')
+        backup_file.write(response.text)
         backup_file.close()
-    except requests.exceptions.RequestException as e:
+
+    except requests.exceptions.RequestException as e: # Error of not being able to parse data
         print('Error')
+
+        # copying contents from backup file into the data.html file
         with open(constants.BACKUP_HTML,'r') as firstfile, open(html_file, 'w') as secondfile:
             for line in firstfile:
-                secondfile.write(line)
+                secondfile.write(line) 
 
 if __name__ == '__main__':
     parse_to_html(constants.COURSES_HTML)

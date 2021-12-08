@@ -3,6 +3,7 @@ import constants
 import course_class
 
 def saving_json(json_file, mode):
+    '''Loading dictionary of all the courses from json file.'''
     try:
         f = open(json_file, mode)
         try:
@@ -19,6 +20,7 @@ def saving_json(json_file, mode):
 
 
 def trim_tittle(title):
+    '''Trim the tittle so only type of seminar and seminar id is present'''
     title = title[:len(title) - 7].strip()
     title = title[5:] if title[0] == '-' else title[4:]
     if title[0] == '-':
@@ -26,6 +28,13 @@ def trim_tittle(title):
     return title
 
 def modify_selected_courses(selected_courses, index):
+    '''
+    Add the type of the course to the list of courses.
+    If the course has extra class then add that course
+    and 'RCT' to the end of the list. Needed for the 
+    backtracking algorithm to add the recitation course
+    to the schedule.
+    '''
     for i in range(len(selected_courses)):
         selected_courses[i] = (selected_courses[i], 'LEC')
     for i in range(len(selected_courses)):
@@ -41,6 +50,12 @@ def modify_selected_courses(selected_courses, index):
     return True
 
 def scheduling(selected_courses, index):
+    '''
+    Start of the backtracking algorithm that generates all the
+    calendars of possible schedules. Also if the course picked
+    is fixed then add that course to the schedule and start
+    algorithm from the non-fixed course.
+    '''
     schedule = []
     if index:
         for i in range(index):
@@ -49,6 +64,15 @@ def scheduling(selected_courses, index):
     return calendar
 
 def backtracking(calendar, schedule, selected_courses, index):
+    '''
+    Main algorithm for creating calendars. Terminates when index equals
+    to the number of courses in the list. Then adds that schedule to the
+    list of calendars. The course that is being planned to add is being 
+    chechked with all the previous courses to check for time conflict.
+    Id_dict is used for iteration over the courses that can be added. In
+    case none of the courses of a special id can be added, program backtracks
+    to the previous course.
+    '''
     if index == len(selected_courses):
         calendar.append(schedule[:])
         return calendar
@@ -85,6 +109,11 @@ def backtracking(calendar, schedule, selected_courses, index):
     return calendar
 
 def check_fixed_courses(fixed_courses):
+    '''
+    Check if the courses that are fixed do not have time conflict.
+    If they do the whole program terminates, since no possible schedule
+    can be created.
+    '''
     for i in range(len(fixed_courses)):
         start, end = fixed_courses[i]['start_date'], fixed_courses[i]['end_date']
         for j in range(i + 1, len(fixed_courses)):
@@ -96,6 +125,7 @@ def check_fixed_courses(fixed_courses):
     return True
 
 def correct_selected_courses(selected_courses):
+    '''Change the tupple of id and title of the fixed courses to the course object.'''
     selected_count = 0
     fixed_selected_courses = []
     try:
@@ -114,6 +144,7 @@ def correct_selected_courses(selected_courses):
         return (False, False)
 
 def to_json(json_file, mode, array):
+    '''Convert list/dictionary into the json file.'''
     jsonstr = json.dumps(array, default = lambda x: x.__dict__)
     json_file = open(json_file, mode)
     json_file.write(jsonstr)
@@ -122,11 +153,12 @@ def to_json(json_file, mode, array):
 if __name__ == '__main__':
     id_dict = saving_json(constants.COURSES_DICT_JSON, 'r')
     selected_courses = saving_json(constants.SELECTED_JSON, 'r')
-    if selected_courses and id_dict:
+
+    if selected_courses and id_dict: # If error occured during loading files then do not run the algorithm and print error message.
         fixed_selected_courses, selected_count = correct_selected_courses(selected_courses)
-        if fixed_selected_courses:
+        if fixed_selected_courses: # If error occured in the keys of the courses then do not run the algorithm and print error message.
             if check_fixed_courses(fixed_selected_courses[:selected_count]):
-                if modify_selected_courses(fixed_selected_courses, selected_count):
+                if modify_selected_courses(fixed_selected_courses, selected_count): # If error occured in the keys of the courses then do not run the algorithm and print error message.
                     calendar = scheduling(fixed_selected_courses, selected_count)
                     to_json(constants.CALENDAR_JSON, 'w', calendar)
             else:
